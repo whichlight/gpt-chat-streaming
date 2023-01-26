@@ -1,0 +1,100 @@
+.main {
+  background: rgb(244, 255, 164);
+}
+
+.main,
+.main input {
+  font-size: 16px;
+  line-height: 24px;
+  color: #353740;
+  font-family: "IBM Plex Sans Arabic", sans-serif;
+  height: 100%;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.main .icon {
+  width: 34px;
+}
+.main h3 {
+  font-family: "Great Vibes", cursive;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 40px;
+  color: #009c17;
+  line-height: 24px;
+}
+.main form {
+  display: flex;
+  gap: 10x;
+}
+.main input[type="text"] {
+  padding: 12px 16px;
+  border: 2px solid #00d6ff;
+  border-radius: 1px;
+  margin-bottom: 12px;
+  outline-color: #00ffff;
+  background: #ffffff9d;
+  color: #009c17;
+  width: 100%;
+}
+.main ::placeholder {
+  color: #8e8ea0;
+  opacity: 1;
+}
+.main input[type="submit"] {
+  padding: 12px 0;
+  color: white;
+  background-color: #00d6ff;
+  border: 2px solid #00d6ff;
+  border-radius: 1px;
+  text-align: center;
+  cursor: pointer;
+  width: 100px;
+  margin-left: 10px;
+}
+.main .result {
+  font-weight: bold;
+  margin-top: 40px;
+}
+
+.main .chat {
+  max-width: 600px;
+}
+
+.main .chatDisplay {
+  background: #ffffff9d;
+  font-size: 18px;
+  text-align: left;
+  height: 400px;
+  border-radius: 1px;
+  border: 2px solid #00d6ff;
+  outline-color: #10a37f;
+  margin-bottom: 12px;
+  padding: 12px 0px;
+  overflow-y: auto;
+  color: #009c17;
+}
+
+.message {
+  display: flex;
+  margin: 4px 0px;
+}
+.messageName {
+  display: inline;
+  font-weight: bold;
+  padding-left: 10px;
+}
+.messageContent {
+  display: inline;
+  margin-left: 10px;
+}
+
+.footer,
+.footer a,
+.footer a:visited {
+  padding-top: 10px;
+  color: #009c17;
+}
