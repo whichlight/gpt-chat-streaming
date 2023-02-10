@@ -30,7 +30,7 @@ Here is an example of how to start the conversation:
 `;
 
 // no api calls while testing
-const testing = false;
+const testing = true;
 
 function generatePrompt(chat) {
   let messages = "";
@@ -54,6 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   const prompt = generatePrompt(chat);
+  console.log(prompt);
 
   const payload: OpenAIStreamPayload = {
     model: "text-davinci-003",

@@ -6,34 +6,16 @@ export default function Home() {
   const bottomRef = useRef(null);
   const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState([]);
-  const [aiResponse, setAiResponse] = useState("");
-  const [loading, setLoading] = useState(false);
 
   //set the first message on load
   useEffect(() => {
     setMessages([{ name: "AI", message: getGreeting() }]);
   }, [0]);
 
-  //hack to keep aiResponse and messages in sync
-  useEffect(() => {
-    if (aiResponse != "") {
-      setMessages((prevMessages) => {
-        //remove updating response
-        const newMessages = [
-          ...prevMessages,
-          { name: "AI", message: aiResponse },
-        ];
-        return newMessages;
-      });
-    }
-    setAiResponse("");
-  }, [loading]);
-
   //scroll to the bottom of the chat for new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    console.log(messages, aiResponse);
-  }, [messages, aiResponse]);
+  }, [messages]);
 
   function getGreeting() {
     const greetings = [
@@ -50,14 +32,18 @@ export default function Home() {
   async function onSubmit(event) {
     event.preventDefault();
 
-    setLoading(true);
+    //start AI message before call
+    //this is a hack, the state doesn't update before the api call,
+    //so I reconstruct the messages
     setMessages((prevMessages) => {
-      const newMessages = [...prevMessages, { name: "Me", message: chatInput }];
+      const newMessages = [
+        ...prevMessages,
+        { name: "Me", message: chatInput },
+        { name: "AI", message: "" },
+      ];
       return newMessages;
     });
 
-    // this is a hack bc I want to clear the form but messages doesn't update in time
-    // bc async, fix this later
     const sentInput = chatInput;
     setChatInput("");
 
@@ -85,17 +71,20 @@ export default function Home() {
     const decoder = new TextDecoder();
     let done = false;
 
+    //stream in the response
     while (!done) {
       const { value, done: doneReading } = await reader.read();
       done = doneReading;
       const chunkValue = decoder.decode(value);
-      setAiResponse((prev) => prev + chunkValue);
-      console.log("chunk: " + chunkValue);
-      console.log("ai response: " + aiResponse);
-    }
 
-    if (done) {
-      setLoading(false);
+      setMessages((prevMessages) => {
+        const lastMsg = prevMessages.pop();
+        const newMessages = [
+          ...prevMessages,
+          { name: lastMsg.name, message: lastMsg.message + chunkValue },
+        ];
+        return newMessages;
+      });
     }
   }
 
@@ -147,12 +136,7 @@ export default function Home() {
         <div className={styles.chat}>
           <div className={styles.chatDisplay}>
             {messageElements}
-            {loading && (
-              <div className={styles.message}>
-                <div className={styles.messageName}>AI</div>
-                <div className={styles.messageContent}> {aiResponse} </div>
-              </div>
-            )}
+
             <div ref={bottomRef} />
           </div>
           <form onSubmit={onSubmit}>
