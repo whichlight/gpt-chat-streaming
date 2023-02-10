@@ -6,16 +6,34 @@ export default function Home() {
   const bottomRef = useRef(null);
   const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const [aiResponse, setAiResponse] = useState("");
+  const [loading, setLoading] = useState(false);
 
   //set the first message on load
   useEffect(() => {
     setMessages([{ name: "AI", message: getGreeting() }]);
   }, [0]);
 
+  //hack to keep aiResponse and messages in sync
+  useEffect(() => {
+    if (aiResponse != "") {
+      setMessages((prevMessages) => {
+        //remove updating response
+        const newMessages = [
+          ...prevMessages,
+          { name: "AI", message: aiResponse },
+        ];
+        return newMessages;
+      });
+    }
+    setAiResponse("");
+  }, [loading]);
+
   //scroll to the bottom of the chat for new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    console.log(messages, aiResponse);
+  }, [messages, aiResponse]);
 
   function getGreeting() {
     const greetings = [
@@ -32,6 +50,7 @@ export default function Home() {
   async function onSubmit(event) {
     event.preventDefault();
 
+    setLoading(true);
     setMessages((prevMessages) => {
       const newMessages = [...prevMessages, { name: "Me", message: chatInput }];
       return newMessages;
@@ -42,36 +61,41 @@ export default function Home() {
     const sentInput = chatInput;
     setChatInput("");
 
-    try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chat: [...messages, { name: "Me", message: sentInput }],
-        }),
-      });
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chat: [...messages, { name: "Me", message: sentInput }],
+      }),
+    });
 
-      const data = await response.json();
-      if (response.status !== 200) {
-        throw (
-          data.error ||
-          new Error(`Request failed with status ${response.status}`)
-        );
-      }
+    if (!response.ok) {
+      alert("Please enter a valid input");
+      return;
+    }
 
-      setMessages((prevMessages) => {
-        const newMessages = [
-          ...prevMessages,
-          { name: "AI", message: data.result },
-        ];
-        return newMessages;
-      });
-    } catch (error) {
-      // Consider implementing your own error handling logic here
-      console.error(error);
-      alert(error.message);
+    const data = response.body;
+    if (!data) {
+      return;
+    }
+
+    const reader = data.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      const chunkValue = decoder.decode(value);
+      setAiResponse((prev) => prev + chunkValue);
+      console.log("chunk: " + chunkValue);
+      console.log("ai response: " + aiResponse);
+    }
+
+    if (done) {
+      setLoading(false);
     }
   }
 
@@ -123,6 +147,12 @@ export default function Home() {
         <div className={styles.chat}>
           <div className={styles.chatDisplay}>
             {messageElements}
+            {loading && (
+              <div className={styles.message}>
+                <div className={styles.messageName}>AI</div>
+                <div className={styles.messageContent}> {aiResponse} </div>
+              </div>
+            )}
             <div ref={bottomRef} />
           </div>
           <form onSubmit={onSubmit}>
