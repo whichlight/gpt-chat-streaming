@@ -1,8 +1,8 @@
-# OpenAI GPT-3 Chat App
+# OpenAI GPT-3 Chat App with Streaming Responses
 
 This is a simple chat application built using GPT-3. It uses [Next.js](https://nextjs.org/), and builds off of the OpenAI API [quickstart tutorial](https://beta.openai.com/docs/quickstart). Edit the prompt in the generate.ts file to describe the kind of chat character you'd like.
 
-The streaming part is based on this [vercel edge function tutorial](https://vercel.com/blog/gpt-3-app-next-js-vercel-edge-functions).
+For more on streaming with GPT-3, check out the [vercel edge function tutorial](https://vercel.com/blog/gpt-3-app-next-js-vercel-edge-functions).
 
 You can test out the promps in [ChatGPT](https://chat.openai.com/) and also in the [Playground Chat example](https://beta.openai.com/playground/p/default-chat).
 
